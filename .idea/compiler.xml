@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="apiGateway-server" options="-parameters" />
+      <module name="apiGateway-server.main" options="-parameters" />
+      <module name="apiGateway-server.test" options="-parameters" />
+      <module name="cotizador-servicer" options="-parameters" />
+      <module name="cotizador-servicer.main" options="-parameters" />
+      <module name="cotizador-servicer.test" options="-parameters" />
+      <module name="eureka-server" options="-parameters" />
+      <module name="eureka-server.main" options="-parameters" />
+      <module name="eureka-server.test" options="-parameters" />
+      <module name="flota-servicer" options="-parameters" />
+      <module name="flota-servicer.main" options="-parameters" />
+      <module name="flota-servicer.test" options="-parameters" />
+      <module name="vehiculo-servicer" options="-parameters" />
+      <module name="vehiculo-servicer.main" options="-parameters" />
+      <module name="vehiculo-servicer.test" options="-parameters" />
+    </option>
+  </component>
+</project>
