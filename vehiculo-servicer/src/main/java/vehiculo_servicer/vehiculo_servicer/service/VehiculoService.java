@@ -21,6 +21,8 @@ public interface VehiculoService {
 
     VehiculoResponseDTO guardar(VehiculoRequestDTO requestDTO);
 
+    List<VehiculoResponseDTO> guardarTodos(List<VehiculoRequestDTO> requestDTOs);
+
     VehiculoResponseDTO actualizar(Long id, VehiculoRequestDTO requestDTO);
 
     void eliminar(Long id);

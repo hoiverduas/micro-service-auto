@@ -11,7 +11,7 @@ import flota_servicer.flota_servicer.dto.FlotaResponseDTO;
 import flota_servicer.flota_servicer.dto.VehiculoDTO;
 import flota_servicer.flota_servicer.model.Flota;
 import flota_servicer.flota_servicer.repository.FlotaRepository;
-import flota_servicer.flota_servicer.service.FlotaService;
+import flota_servicer.flota_servicer.utils.FlotaMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +26,7 @@ public class FlotaServiceImpl implements FlotaService {
     private final FlotaRepository flotaRepository;
     private final VehiculoClient vehiculoClient;
     private final CotizacionClient cotizacionClient;
+    private final FlotaMapper flotaMapper;
 
     @Override
     public List<FlotaResponseDTO> listar() {
@@ -46,7 +47,7 @@ public class FlotaServiceImpl implements FlotaService {
     public FlotaResponseDTO guardar(FlotaRequestDTO requestDTO) {
         return Optional.ofNullable(requestDTO)
                 .map(this::validarVehiculos)
-                .map(this::toEntity)
+                .map(flotaMapper::toEntity)
                 .map(flotaRepository::save)
                 .map(this::toResponseDTO)
                 .orElseThrow(() -> new RuntimeException("La solicitud de flota es obligatoria"));
@@ -55,7 +56,10 @@ public class FlotaServiceImpl implements FlotaService {
     @Override
     public FlotaResponseDTO actualizar(Long id, FlotaRequestDTO requestDTO) {
         return flotaRepository.findById(id)
-                .map(flotaActual -> actualizarDatos(flotaActual, validarVehiculos(requestDTO)))
+                .map(flotaActual -> flotaMapper.actualizarDatos(
+                        flotaActual,
+                        validarVehiculos(requestDTO)
+                ))
                 .map(flotaRepository::save)
                 .map(this::toResponseDTO)
                 .orElseThrow(() -> new RuntimeException("Flota no encontrada con id: " + id));
@@ -93,9 +97,13 @@ public class FlotaServiceImpl implements FlotaService {
     private VehiculoDTO consultarVehiculoPorId(Long idVehiculo) {
         try {
             return Optional.ofNullable(vehiculoClient.buscarPorId(idVehiculo))
-                    .orElseThrow(() -> new RuntimeException("Vehículo no encontrado con id: " + idVehiculo));
+                    .orElseThrow(() -> new RuntimeException(
+                            "Vehículo no encontrado con id: " + idVehiculo
+                    ));
+
         } catch (FeignException.NotFound e) {
             throw new RuntimeException("Vehículo no encontrado con id: " + idVehiculo);
+
         } catch (FeignException e) {
             throw new RuntimeException("Error consultando Vehiculo-Service para id: " + idVehiculo);
         }
@@ -114,7 +122,7 @@ public class FlotaServiceImpl implements FlotaService {
                 .orElseGet(List::of)
                 .stream()
                 .map(this::consultarVehiculoPorId)
-                .map(vehiculo -> crearCotizacionRequest(vehiculo, distanciaKm))
+                .map(vehiculo -> flotaMapper.toCotizacionRequestDTO(vehiculo, distanciaKm))
                 .map(this::consultarCotizador)
                 .toList();
 
@@ -135,23 +143,10 @@ public class FlotaServiceImpl implements FlotaService {
         try {
             return Optional.ofNullable(cotizacionClient.cotizar(requestDTO))
                     .orElseThrow(() -> new RuntimeException("Cotizador-Service no respondió"));
+
         } catch (FeignException e) {
             throw new RuntimeException("Error consultando Cotizador-Service");
         }
-    }
-
-    private CotizacionRequestDTO crearCotizacionRequest(VehiculoDTO vehiculo, Double distanciaKm) {
-        CotizacionRequestDTO requestDTO = new CotizacionRequestDTO();
-
-        requestDTO.setVehiculoId(vehiculo.getId());
-        requestDTO.setTipo(vehiculo.getTipo());
-        requestDTO.setMarca(vehiculo.getMarca());
-        requestDTO.setModelo(vehiculo.getModelo());
-        requestDTO.setPlaca(vehiculo.getPlaca());
-        requestDTO.setDistanciaKm(distanciaKm);
-        requestDTO.setConsumoPorKm(vehiculo.getConsumoPorKm());
-
-        return requestDTO;
     }
 
     private void validarDistancia(Double distanciaKm) {
@@ -160,42 +155,9 @@ public class FlotaServiceImpl implements FlotaService {
                 .orElseThrow(() -> new RuntimeException("La distancia debe ser mayor a cero"));
     }
 
-    private Flota toEntity(FlotaRequestDTO requestDTO) {
-        Flota flota = new Flota();
-
-        flota.setNombre(requestDTO.getNombre());
-        flota.setDescripcion(requestDTO.getDescripcion());
-        flota.setCiudadOperacion(requestDTO.getCiudadOperacion());
-        flota.setResponsable(requestDTO.getResponsable());
-        flota.setEstado(requestDTO.getEstado());
-        flota.setVehiculosIds(requestDTO.getVehiculosIds());
-
-        return flota;
-    }
-
-    private Flota actualizarDatos(Flota flotaActual, FlotaRequestDTO requestDTO) {
-        flotaActual.setNombre(requestDTO.getNombre());
-        flotaActual.setDescripcion(requestDTO.getDescripcion());
-        flotaActual.setCiudadOperacion(requestDTO.getCiudadOperacion());
-        flotaActual.setResponsable(requestDTO.getResponsable());
-        flotaActual.setEstado(requestDTO.getEstado());
-        flotaActual.setVehiculosIds(requestDTO.getVehiculosIds());
-
-        return flotaActual;
-    }
-
     private FlotaResponseDTO toResponseDTO(Flota flota) {
-        FlotaResponseDTO responseDTO = new FlotaResponseDTO();
+        List<VehiculoDTO> vehiculos = consultarVehiculos(flota.getVehiculosIds());
 
-        responseDTO.setId(flota.getId());
-        responseDTO.setNombre(flota.getNombre());
-        responseDTO.setDescripcion(flota.getDescripcion());
-        responseDTO.setCiudadOperacion(flota.getCiudadOperacion());
-        responseDTO.setResponsable(flota.getResponsable());
-        responseDTO.setEstado(flota.getEstado());
-        responseDTO.setVehiculosIds(flota.getVehiculosIds());
-        responseDTO.setVehiculos(consultarVehiculos(flota.getVehiculosIds()));
-
-        return responseDTO;
+        return flotaMapper.toResponseDTO(flota, vehiculos);
     }
 }

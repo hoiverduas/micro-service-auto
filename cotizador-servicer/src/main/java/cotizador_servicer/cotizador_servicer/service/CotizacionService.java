@@ -15,5 +15,7 @@ public interface CotizacionService {
 
     CotizacionResponseDTO buscarPorId(Long id);
 
+    List<CotizacionResponseDTO> cotizarTodos(List<CotizacionRequestDTO> requestDTOs);
+
     void eliminar(Long id);
 }

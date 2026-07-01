@@ -13,6 +13,11 @@ java {
 	}
 }
 
+ext {
+	set('springCloudVersion', "2025.1.2")
+}
+
+
 repositories {
 	mavenCentral()
 }
@@ -28,10 +33,22 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testAnnotationProcessor 'org.projectlombok:lombok'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
 
+
+
+}
+
+
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
+

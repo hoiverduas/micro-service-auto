@@ -29,6 +29,22 @@ public class CotizacionServiceImpl implements CotizacionService {
     }
 
     @Override
+    public List<CotizacionResponseDTO> cotizarTodos(List<CotizacionRequestDTO> requestDTOs) {
+        return Optional.ofNullable(requestDTOs)
+                .filter(lista -> !lista.isEmpty())
+                .map(lista -> lista.stream()
+                        .map(this::toEntity)
+                        .map(this::calcularCotizacion)
+                        .toList()
+                )
+                .map(cotizacionRepository::saveAll)
+                .orElseThrow(() -> new RuntimeException("La lista de cotizaciones es obligatoria"))
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    @Override
     public List<CotizacionResponseDTO> listar() {
         return cotizacionRepository.findAll()
                 .stream()

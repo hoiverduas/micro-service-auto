@@ -37,6 +37,14 @@ public class VehiculoController {
                 .body(this.vehiculoService.guardar(requestDTO));
     }
 
+    @PostMapping("/crear")
+    public ResponseEntity<List<VehiculoResponseDTO>> guardarTodos(
+            @RequestBody List<VehiculoRequestDTO> requestDTOs
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(vehiculoService.guardarTodos(requestDTOs));
+    }
+
     @PutMapping
     public ResponseEntity<VehiculoResponseDTO> updateVehiculo(
             @PathVariable("id") Long id,

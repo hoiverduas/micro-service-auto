@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/cotizaciones")
 @RequiredArgsConstructor
@@ -23,6 +25,15 @@ public class CotizacionController {
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(cotizacionService.cotizar(requestDTO));
+    }
+
+
+    @PostMapping("/crear")
+    public ResponseEntity<List<CotizacionResponseDTO>> cotizarTodos(
+            @RequestBody List<CotizacionRequestDTO> requestDTOs
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(cotizacionService.cotizarTodos(requestDTOs));
     }
 
     @GetMapping

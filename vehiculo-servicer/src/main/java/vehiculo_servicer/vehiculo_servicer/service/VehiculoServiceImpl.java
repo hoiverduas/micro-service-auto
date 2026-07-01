@@ -49,6 +49,21 @@ public class VehiculoServiceImpl implements VehiculoService {
     }
 
     @Override
+    public List<VehiculoResponseDTO> guardarTodos(List<VehiculoRequestDTO> requestDTOs) {
+        return Optional.ofNullable(requestDTOs)
+                .filter(lista -> !lista.isEmpty())
+                .map(lista -> lista.stream()
+                        .map(vehiculoMapper::toEntity)
+                        .toList()
+                )
+                .map(vehiculoRepository::saveAll)
+                .orElseThrow(() -> new RuntimeException("La lista de vehículos es obligatoria"))
+                .stream()
+                .map(vehiculoMapper::toResponseDTO)
+                .toList();
+    }
+
+    @Override
     public VehiculoResponseDTO actualizar(Long id, VehiculoRequestDTO requestDTO) {
         return vehiculoRepository.findById(id)
                 .map(vehiculoActual -> vehiculoMapper.actualizarEntidad(vehiculoActual,requestDTO))
