@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/cotizador-servicer.main.iml" filepath="$PROJECT_DIR$/.idea/modules/cotizador-servicer.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/flota-servicer.main.iml" filepath="$PROJECT_DIR$/.idea/modules/flota-servicer.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/microservicios.iml" filepath="$PROJECT_DIR$/.idea/microservicios.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vehiculo-servicer.main.iml" filepath="$PROJECT_DIR$/.idea/modules/vehiculo-servicer.main.iml" />
     </modules>
   </component>
 </project>
